@@ -7,6 +7,6 @@ var main = require("./main");
 
 router.use("/user", user);
 router.use("/marker",marker);
-router.use("/main", main);
+router.use("/", main);
 
 module.exports = router;
