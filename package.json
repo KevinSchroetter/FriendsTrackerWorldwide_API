@@ -1,5 +1,5 @@
 {
-  "name": "ftwapi",
+  "name": "friendstrackerworldwide-api",
   "version": "2.0.0",
   "dependencies": {
     "body-parser": "~1.17.2",

@@ -1,6 +1,6 @@
 applications:
-- name: ftwapi
-  host : ftwapi
+- name: friendstrackerworldwide-api
+  host : friendstrackerworldwide-api
   command: node app.js
   domain: mybluemix.net
   memory: 124M
