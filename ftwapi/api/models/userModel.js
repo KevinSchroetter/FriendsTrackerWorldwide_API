@@ -1,7 +1,7 @@
 var db = require('../db');
-var bcrypt = require('bcrypt');
+//var bcrypt = require('bcrypt');
 var geoPoint = require('geopoint');
-const saltRounds = 10;
+//const saltRounds = 10;
 /*
  *
  * This method creates a new user in the database
@@ -22,7 +22,26 @@ exports.save = function(data, cb){
     else{
       console.log("User does not exist");
       var description = ""+data.username+"'s Position";
-      bcrypt.hash(data.password, saltRounds, function(err, hash){
+	  collection.insertOne({
+            username : data.username,
+            password : data.password,
+            geoLocation : {
+              latitude: Number(data.latitude),
+              longitude: Number(data.longitude)
+            },
+            friends:[] ,
+            description: description
+          },function(err,result){
+          if(err){
+            cb({err: "Could not add User '"+data.username+"' to database!"});
+            return;
+          }
+          else{
+            console.log(data.username + " added to database!");
+            cb({message: "Successfully added User '"+data.username+"' to database!"});
+          }
+        });
+      /*bcrypt.hash(data.password, saltRounds, function(err, hash){
         collection.insertOne({
             username : data.username,
             password : hash,
@@ -42,7 +61,7 @@ exports.save = function(data, cb){
             cb({message: "Successfully added User '"+data.username+"' to database!"});
           }
         });
-      })
+      })*/
     }
   });
 }
@@ -61,14 +80,20 @@ exports.login = function(data, cb){
       cb({err: "Could not find user "+data.username});
     }
     else{
-      bcrypt.compare(data.password, user.password, function(err,res){
+		if (user.passowrd == data.password){
+			cb({success: "Logged in!"});
+		}
+		else{
+			cb({err: "Wrong password!"});
+		}
+     /* bcrypt.compare(data.password, user.password, function(err,res){
         if(res){
           cb({success: "User logged in!"});
         }
         else{
           cb({err: "Wrong password!"});
         }
-      })
+      })*/
     }
   })
 }

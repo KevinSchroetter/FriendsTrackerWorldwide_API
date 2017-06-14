@@ -1,0 +1,8 @@
+applications:
+- name: ftwapi
+  host : ftwapi
+  command: node app.js
+  domain: mybluemix.net
+  memory: 124M
+  buildpack: nodejs_buildpack
+  instances: 1

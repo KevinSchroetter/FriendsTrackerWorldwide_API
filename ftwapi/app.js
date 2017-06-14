@@ -1,11 +1,13 @@
 var express = require('express');
 var	app = express();
-var	port = process.env.PORT || 3000;
+var cfenv = require("cfenv");
+var appEnv = cfenv.getAppEnv();
 var bodyParser = require('body-parser');
 var MongoClient = require('mongodb').MongoClient;
 var ftwDb;
 var apiRoutes = require('./api/routes/index');
 var db = require('./api/db');
+var http = require('http');
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -19,8 +21,9 @@ db.connect("mongodb://FriendsTrackerWorldwide:FTW2017@ds115352.mlab.com:15352/ft
 		process.exit(1);
 	}
 	else{
-		app.listen(port);
-		console.log('FriendsTrackerWorldwide API listening on Port: ' + port);
+		var server = http.createServer(app);
+		server.listen(appEnv.port, appEnv.bind);
+		console.log('FriendsTrackerWorldwide API listening on Port: ' + appEnv.url);
 	}
 });
 
