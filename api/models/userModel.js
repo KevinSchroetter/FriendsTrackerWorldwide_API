@@ -80,7 +80,7 @@ exports.login = function(data, cb){
       cb({err: "Could not find user "+data.username});
     }
     else{
-		if (user.passowrd == data.password){
+		if (user.password == data.password){
 			cb({success: "Logged in!"});
 		}
 		else{
