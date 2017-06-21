@@ -84,12 +84,12 @@ exports.myMarker = function(data,cb){
     else{
       var myGeoPointLocation = new geoPoint(user.geoLocation.latitude, user.geoLocation.longitude);
       var customFriendsMarker = [];
-      markerCollection.find({"owner": {$in : user.friends}},{ "username":1, "geoLocation": 1, "description":1, "_id":0},{"test": "ok"}).toArray(function(err, result){
+      markerCollection.find({"owner": {$in : user.friends}},{ "owner":1, "geoLocation": 1, "description":1, "_id":0},{"test": "ok"}).toArray(function(err, result){
         result.forEach(function(elem){
           var tmpGeoPoint = new geoPoint(elem.geoLocation.latitude, elem.geoLocation.longitude);
           var distanceToMe = myGeoPointLocation.distanceTo(tmpGeoPoint, true);
           customFriendsMarker.push({
-            username: elem.username,
+            owner: elem.owner,
             geoLocation: elem.geoLocation,
             description: elem.description,
             distance: distanceToMe
