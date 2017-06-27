@@ -30,7 +30,9 @@ exports.save = function(data, cb){
               longitude: Number(data.longitude)
             },
             friends:[] ,
-            description: description
+            description: description,
+            sentRequests: [],
+            openRequests: []
           },function(err,result){
           if(err){
             cb({err: "Could not add User '"+data.username+"' to database!"});
@@ -122,8 +124,45 @@ exports.newFriend = function(data,cb){
               cb({err: "Friend not in database!"});
             }
             else{
-              collection.update({username:data.username},
+              collection.update({"username":data.username},
+              {$push: {sentRequests: data.friend}});
+              collection.update({"username":data.friend},
+              {$push: {openRequests: data.username}});
+              cb({message: "added friendrequest"});
+              console.log(data.username+" added new friendrequest: "+data.friend);
+            }
+          });
+        }
+      }
+    });
+  }
+}
+exports.confirmFriend = function(data,cb){
+  if(data.username == data.friend){
+    cb({err: "Cannot add yourself to your friends!"});
+  }
+  else{
+    var collection = db.get().collection('user');
+    collection.findOne({"username" : data.username}, function(err,user){
+      if(user!=null){
+        if(user.friends.indexOf(data.friend)>-1){
+          cb({message: "Friend already exists"});
+        }
+        else if(user.openRequests.indexOf(data.friend)<0){
+         cb({message: "Could not confirm, there is no matching request!"});
+       }
+        else{
+          collection.findOne({"username" : data.friend}, function(err,user){
+            if(user==null){
+              cb({err: "Friend not in database!"});
+            }
+            else{
+              collection.update({"username":data.username},
               {$push: {friends: data.friend}});
+              collection.update({"username":data.friend},
+              {$push: {friends: data.username}});
+              collection.update({"username" : data.username}, {$pull: {openRequests : data.friend}},false,true);
+              collection.update({"username" : data.friend}, {$pull: {sentRequests : data.username}},false,true);
               cb({message: "added friend"});
               console.log(data.username+" added new friend: "+data.friend);
             }
@@ -203,10 +242,29 @@ exports.removeFriend = function(data,cb){
     else{
       if(user.friends.indexOf(data.friend)>-1){
         collection.update({"username" : data.username}, {$pull: {friends : data.friend}},false,true);
+        collection.update({"username" : data.friend}, {$pull: {friends : data.username}}, false, true);
         cb({message: "Friend removed"});
       }
       else{
         cb({err: "Friend not in friendlist!"});
+      }
+    }
+  })
+}
+exports.denyFriend = function(data,cb){
+  var collection = db.get().collection('user');
+  collection.findOne({"username" : data.username}, function(err,user){
+    if(user==null){
+      cb({err: "Could not find user "+data.username});
+    }
+    else{
+      if(user.openRequests.indexOf(data.friend)>-1){
+        collection.update({"username" : data.username}, {$pull: {openRequests : data.friend}},false,true);
+        collection.update({"username" : data.friend}, {$pull: {sentRequests : data.username}},false,true);
+        cb({message: "Friendrequest denied!"});
+      }
+      else{
+        cb({err: "Friend not in requestlist!"});
       }
     }
   })
@@ -266,6 +324,17 @@ exports.friendsLoc = function(data,cb){
           cb({friendsLocation: customFriendsLocations});
         });
       }
+    }
+  });
+}
+exports.getRequests = function(data,cb){
+  var collection = db.get().collection('user');
+  collection.findOne({"username" : data.username}, function(err,user){
+    if(user==null){
+        cb({err: "Could not find user "+data.username});
+    }
+    else{
+      cb({sentRequests: user.sentRequests, openRequests: user.openRequests});
     }
   });
 }

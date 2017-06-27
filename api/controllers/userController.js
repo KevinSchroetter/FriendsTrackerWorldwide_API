@@ -59,3 +59,21 @@ exports.loginUser = function(req,res){
     res.send(result);
   })
 }
+exports.confirmFriend = function(req,res){
+  data = req.body;
+  User.confirmFriend(data, function(result){
+    res.send(result);
+  })
+}
+exports.denyFriend = function(req,res){
+  data = req.body;
+  User.denyFriend(data, function(result){
+    res.send(result);
+  })
+}
+exports.getRequests = function(req,res){
+  data = req.params;
+  User.getRequests(data, function(result){
+    res.send(result);
+  })
+}
