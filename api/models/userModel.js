@@ -118,6 +118,9 @@ exports.newFriend = function(data,cb){
         if(user.friends.indexOf(data.friend)>-1){
           cb({message: "Friend already exists"});
         }
+        else if(user.sentRequests.indexOf(data.friend)>-1){
+          cb({message: "Already sent friendrequest to this user!"});
+        }
         else if(user.openRequests.indexOf(data.friend)>-1){
           collection.update({"username":data.username},
           {$pull: {openRequests: data.friend}});
