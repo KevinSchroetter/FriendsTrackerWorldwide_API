@@ -116,7 +116,18 @@ exports.newFriend = function(data,cb){
     collection.findOne({"username" : data.username}, function(err,user){
       if(user!=null){
         if(user.friends.indexOf(data.friend)>-1){
-        cb({message: "Friend already exists"});
+          cb({message: "Friend already exists"});
+        }
+        else if(user.openRequests.indexOf(data.friend)>-1){
+          collection.update({"username":data.username},
+          {$pull: {openRequests: data.friend}});
+          collection.update({"username":data.friend},
+          {$pull: {sentRequests: data.username}});
+          collection.update({"username":data.friend},
+          {$push: {friends: data.username}});
+          collection.update({"username":data.username},
+          {$push: {friends: data.friend}});
+          cb({message: "Friend added"});
         }
         else{
           collection.findOne({"username" : data.friend}, function(err,user){
