@@ -102,7 +102,10 @@ exports.login = function(data, cb){
 
 /*
  *
- * This method adds a friend the the friends array of a user
+ * This method adds a friendrequest the sentRequest array of a user
+ * and the openRequest array of a friend. If the user that calls this method
+ * already has the friend in the openRequest array, it will automatically
+ * add user to the friends friends array and friend to the users friends array
  * @params username - the username of the user that wants to add a friend
  *         friend - the name of a friend, that shall be added
  *
@@ -151,6 +154,15 @@ exports.newFriend = function(data,cb){
     });
   }
 }
+/*
+ *
+ * This method creates a friendrequest that is sent from the user to the 
+ * target friend and adds the user in the friends openRequest array
+ * and the friend in the users sentRequest array
+ * @params username - the username of the new user
+ *         friend - the friend to send a request to
+ *        
+ */
 exports.confirmFriend = function(data,cb){
   if(data.username == data.friend){
     cb({err: "Cannot add yourself to your friends!"});
@@ -265,6 +277,14 @@ exports.removeFriend = function(data,cb){
     }
   })
 }
+/*
+ *
+ * This function removes a friendrequest from users openRequest array and the friends
+ * sentRequest array
+ * @params user - the user that denies a request
+ *         friend - the friend that sent the request in the first place
+ *        
+ */
 exports.denyFriend = function(data,cb){
   var collection = db.get().collection('user');
   collection.findOne({"username" : data.username}, function(err,user){
@@ -341,6 +361,13 @@ exports.friendsLoc = function(data,cb){
     }
   });
 }
+/*
+ *
+ * This function returns an array containing all friendrequest information of a user
+ * @params username - the username of the user that wants the position of the friends
+ * @returns sentReqeusts - an array containing the users sent friendrequests
+ *          openRequests - an array containing the users received friendrequests
+ */
 exports.getRequests = function(data,cb){
   var collection = db.get().collection('user');
   collection.findOne({"username" : data.username}, function(err,user){
